@@ -22,6 +22,8 @@ SECURE_HSTS_PRELOAD = True
 
 # TLS を終端するロードバランサ配下で動かす場合に、元の通信方式を伝える。
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# 内部ヘルスチェックは HTTP のまま 200 を返す（リダイレクトするとポート検出に失敗する）。
+SECURE_REDIRECT_EXEMPT = [r"^healthz/?$"]
 
 # --- その他の防御 ---
 

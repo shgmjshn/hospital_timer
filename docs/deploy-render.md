@@ -51,6 +51,9 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 
 最初のアクセスは休眠からの起動で **約1分** かかることがある。これで画面が出れば正常。
 何分待っても読み込み中のままなら、ダッシュボードの **Logs** を見る。
+`Booting worker` が無く `Control socket listening` で止まっているときは、
+gunicorn 25.1 の既知不具合（ワーカー未起動）なので、起動コマンドに
+`--no-control-socket` があるか確認する。
 `migrate` や `ImproperlyConfigured` が出ていれば起動に失敗している。
 「Not Found」だけの白い画面は、サービスがまだ生きていないか、URL を間違えていることが多い
 （開くのは `https://（サービス名）.onrender.com/` で、ダッシュボードのサービス画面にあるリンク）。

@@ -2,7 +2,10 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
+from config.views import healthz
+
 urlpatterns = [
+    path("healthz", healthz, name="healthz"),
     path("admin/", admin.site.urls),
     path("intake/", include("intake.urls")),
     path("doctor/", include("doctor_console.urls")),

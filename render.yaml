@@ -15,6 +15,7 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: bash bin/render-start.sh
+    healthCheckPath: /healthz
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings_production
