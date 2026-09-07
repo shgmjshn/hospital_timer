@@ -33,3 +33,4 @@ CSRF_COOKIE_HTTPONLY = True
 
 # 本番では開発用の既定値を使わせない。未設定なら起動時に気付けるよう空にしておく。
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+FIELD_ENCRYPTION_KEY = os.environ.get("FIELD_ENCRYPTION_KEY", "")

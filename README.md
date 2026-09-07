@@ -23,6 +23,8 @@ Python + Django + PostgreSQL による待ち時間確認システム。患者は
 | `/doctor/entry/<uuid>/` | 症状と自由記述の閲覧 | 医師ロール |
 | `/admin/` | マスタと未登録症状アラート、通知記録 | 管理者 |
 
+学習用の常時公開は [docs/deploy-render.md](docs/deploy-render.md)（Render 無料枠）。
+
 ## 構成
 
 | ディレクトリ | 役割 |

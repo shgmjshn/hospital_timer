@@ -2,6 +2,8 @@ Django==6.1
 psycopg[binary]==3.3.5
 cryptography==50.0.1
 pywebpush==2.5.0
+gunicorn==25.1.0
+whitenoise==6.12.0
 
 # ローカルHTTPS開発サーバー用
 django-extensions==4.1

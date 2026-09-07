@@ -1,0 +1,36 @@
+# Render の Blueprint。ダッシュボードでこのファイルを選ぶと Web と Postgres が揃う。
+# 無料枠: Web は 15 分無通信で休眠、Postgres は作成から 30 日で期限切れ。
+
+databases:
+  - name: hospital-timer-db
+    plan: free
+    databaseName: hospital_timer
+    user: hospital_timer
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: hospital-timer
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: bash bin/render-start.sh
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings_production
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hospital-timer-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: FIELD_ENCRYPTION_KEY
+        sync: false
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@example.clinic

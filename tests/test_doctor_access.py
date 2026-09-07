@@ -88,3 +88,40 @@ def test_non_doctor_cannot_record_a_completion(
     assert response.status_code == 403
     assert ConsultationRoomState.load().is_in_exam is True
     assert NotificationLog.objects.count() == 0
+
+
+def test_ensure_operators_creates_a_doctor_admin(settings, db):
+    from django.contrib.auth import get_user_model
+    from django.core.management import call_command
+
+    call_command(
+        "ensure_operators",
+        stdout=__import__("io").StringIO(),
+    )
+    # 環境変数が空なら何も作らない
+    assert get_user_model().objects.filter(username="render-admin").count() == 0
+
+    settings.DOCTOR_GROUP_NAME = settings.DOCTOR_GROUP_NAME
+    monkey_env = {
+        "DJANGO_SUPERUSER_USERNAME": "render-admin",
+        "DJANGO_SUPERUSER_PASSWORD": "render-admin-pass",
+        "DJANGO_SUPERUSER_EMAIL": "admin@example.clinic",
+    }
+    import os
+
+    for key, value in monkey_env.items():
+        os.environ[key] = value
+    try:
+        call_command("ensure_operators", stdout=__import__("io").StringIO())
+        user = get_user_model().objects.get(username="render-admin")
+        assert user.is_superuser
+        assert user.groups.filter(name=settings.DOCTOR_GROUP_NAME).exists()
+        assert user.check_password("render-admin-pass")
+        # 再実行してもパスワードは変えない
+        os.environ["DJANGO_SUPERUSER_PASSWORD"] = "changed-later"
+        call_command("ensure_operators", stdout=__import__("io").StringIO())
+        user.refresh_from_db()
+        assert user.check_password("render-admin-pass")
+    finally:
+        for key in monkey_env:
+            os.environ.pop(key, None)

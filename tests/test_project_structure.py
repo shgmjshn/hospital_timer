@@ -41,3 +41,27 @@ def test_readability_thresholds_are_defined():
 def test_default_and_minimum_duration_are_configurable():
     assert settings.DEFAULT_DURATION_MINUTES >= 1
     assert settings.MIN_DURATION_MINUTES == 1
+
+
+def test_database_url_is_parsed_for_cloud_postgres():
+    from config.database import database_from_url
+
+    config = database_from_url(
+        "postgres://timer:s3cret@example.render.com:5432/hospital_timer"
+    )
+
+    assert config["ENGINE"] == "django.db.backends.postgresql"
+    assert config["NAME"] == "hospital_timer"
+    assert config["USER"] == "timer"
+    assert config["PASSWORD"] == "s3cret"
+    assert config["HOST"] == "example.render.com"
+    assert config["OPTIONS"]["sslmode"] == "require"
+
+
+def test_local_database_url_does_not_force_tls():
+    from config.database import database_from_url
+
+    config = database_from_url("postgres://hospital_timer:hospital_timer@127.0.0.1:55432/hospital_timer")
+
+    assert config["HOST"] == "127.0.0.1"
+    assert "sslmode" not in config.get("OPTIONS", {})

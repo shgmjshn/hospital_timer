@@ -6,6 +6,8 @@
 import os
 from pathlib import Path
 
+from config.database import database_config
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -26,6 +28,19 @@ ALLOWED_HOSTS = [
     for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]").split(",")
     if host.strip()
 ]
+_render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if _render_host and _render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_host)
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+if _render_host:
+    _origin = f"https://{_render_host}"
+    if _origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_origin)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -44,6 +59,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -72,15 +88,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
+DATABASES = {"default": database_config()}
+
+STORAGES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "hospital_timer"),
-        "USER": os.environ.get("POSTGRES_USER", "hospital_timer"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "hospital_timer"),
-        "HOST": os.environ.get("POSTGRES_HOST", "127.0.0.1"),
-        "PORT": os.environ.get("POSTGRES_PORT", "55432"),
-    }
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
 }
 
 AUTH_PASSWORD_VALIDATORS = [
