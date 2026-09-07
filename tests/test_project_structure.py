@@ -47,7 +47,7 @@ def test_database_url_is_parsed_for_cloud_postgres():
     from config.database import database_from_url
 
     config = database_from_url(
-        "postgres://timer:s3cret@example.render.com:5432/hospital_timer"
+        "postgres://timer:s3cret@example.render.com:5432/hospital_timer?sslmode=require"
     )
 
     assert config["ENGINE"] == "django.db.backends.postgresql"

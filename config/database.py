@@ -28,9 +28,9 @@ def database_from_url(url):
     query = parse_qs(parsed.query)
     if "sslmode" in query:
         options["sslmode"] = query["sslmode"][0]
-    elif parsed.hostname not in {"127.0.0.1", "localhost"}:
-        # クラウドの Postgres は TLS 必須が多い
-        options["sslmode"] = "require"
+    # URL に sslmode が無いときは付けない。
+    # Render の Internal Database URL は同一リージョン内の平文接続で、
+    # require を付けると起動時の migrate が待たされて画面が開き続けない。
     return {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": name,

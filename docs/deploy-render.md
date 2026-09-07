@@ -23,6 +23,7 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 1. [Render Dashboard](https://dashboard.render.com) に GitHub でログインする。
 2. **New** → **Blueprint** を選び、このリポジトリを選ぶ。
 3. `render.yaml` が読まれる。未入力の環境変数を入れる。
+   `DATABASE_URL` は Postgres の **Internal Database URL** を選ぶ（同じ Blueprint なら自動）。
 
 | 変数 | 入れるもの |
 | --- | --- |
@@ -48,7 +49,11 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 
 問診票の QR には `https://（ホスト）/intake/` を載せる。
 
-最初のアクセスは休眠からの起動で待たされることがある。
+最初のアクセスは休眠からの起動で **約1分** かかることがある。これで画面が出れば正常。
+何分待っても読み込み中のままなら、ダッシュボードの **Logs** を見る。
+`migrate` や `ImproperlyConfigured` が出ていれば起動に失敗している。
+「Not Found」だけの白い画面は、サービスがまだ生きていないか、URL を間違えていることが多い
+（開くのは `https://（サービス名）.onrender.com/` で、ダッシュボードのサービス画面にあるリンク）。
 
 ## 4. Blueprint を使わない場合
 
