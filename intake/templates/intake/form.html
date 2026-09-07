@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}問診票{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>問診票</h1>
+  <p class="lede">受付に必要な内容をご記入ください。提出すると、待ち時間を確認できる画面へ進みます。</p>
+
+  <form method="post" novalidate data-intake-form>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="notice strong">
+      {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="field">{% include "intake/_field.html" with field=form.full_name %}</div>
+    <div class="field">{% include "intake/_field.html" with field=form.kana %}</div>
+    <div class="field">{% include "intake/_field.html" with field=form.age_band %}</div>
+    <div class="field">{% include "intake/_field.html" with field=form.gender group=True %}</div>
+    <div class="field">{% include "intake/_field.html" with field=form.symptom %}</div>
+
+    <div class="field" data-reveal-when="symptom" {% if not form.symptom.value %}hidden{% endif %}>
+      {% include "intake/_field.html" with field=form.free_text %}
+    </div>
+
+    <div class="field">{% include "intake/_field.html" with field=form.visit_type group=True %}</div>
+
+    <div class="field" data-reveal-when="visit_type=reserved" {% if form.visit_type.value != "reserved" %}hidden{% endif %}>
+      {% include "intake/_field.html" with field=form.reserved_at force_required=True %}
+    </div>
+
+    <button type="submit" class="submit">受付する</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const form = document.querySelector("[data-intake-form]");
+  if (!form) return;
+
+  const conditionals = Array.from(form.querySelectorAll("[data-reveal-when]"));
+
+  function currentValue(name) {
+    const field = form.elements[name];
+    return field && field.value ? field.value : "";
+  }
+
+  function sync() {
+    for (const target of conditionals) {
+      const [name, expected] = target.dataset.revealWhen.split("=");
+      const value = currentValue(name);
+      target.hidden = expected === undefined ? value === "" : value !== expected;
+    }
+  }
+
+  form.addEventListener("change", sync);
+  form.addEventListener("input", sync);
+  sync();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% comment %}
+表示中の画面を data-state-url の内容で更新する。患者向け画面と待合室表示で共用。
+状況が変わらない区分（診察終了・閉院・予約日前）に達したらポーリングを止める。
+{% endcomment %}
+<script>
+(function () {
+  const root = document.querySelector("[data-status]");
+  if (!root) return;
+
+  const url = root.dataset.stateUrl;
+  const interval = Number(root.dataset.pollInterval) * 1000;
+  if (!url || !(interval > 0)) return;
+
+  const wait = root.querySelector("[data-status-wait]");
+  const waitText = root.querySelector("[data-status-wait-text]");
+  const position = root.querySelector("[data-status-position]");
+  const count = root.querySelector("[data-status-count]");
+  const notice = root.querySelector("[data-status-notice]");
+  const message = root.querySelector("[data-status-message]");
+  const LIVE_PHASES = ["waiting", "come_to_room", "in_exam", "queue_empty"];
+
+  function render(state) {
+    if (wait) wait.hidden = !state.wait_text;
+    if (waitText && state.wait_text) waitText.textContent = state.wait_text;
+    if (position) {
+      position.textContent = state.position ? `現在 ${state.position} 番目にお待ちです` : "";
+    }
+    if (count) {
+      count.textContent = state.waiting_count ? `お待ちの方 ${state.waiting_count} 名` : "";
+    }
+    if (notice) {
+      notice.hidden = !state.message;
+      notice.classList.toggle("strong", state.phase === "come_to_room" || state.final_call === true);
+    }
+    if (message && state.message) message.textContent = state.message;
+    return LIVE_PHASES.includes(state.phase);
+  }
+
+  async function fetchState() {
+    try {
+      const response = await fetch(url, {cache: "no-store", headers: {"Accept": "application/json"}});
+      // 一時的な失敗で表示を止めない。次の間隔で取り直す。
+      return response.ok ? render(await response.json()) : true;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  async function tick() {
+    if (await fetchState()) setTimeout(tick, interval);
+  }
+
+  setTimeout(tick, interval);
+})();
+</script>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}待合室のご案内{% endblock %}
+
+{% block content %}
+<div class="card"
+     data-status
+     data-poll-interval="{{ poll_interval_seconds }}"
+     data-state-url="{% url 'status_view:lobby_state' %}">
+  <h1>本日の受付状況</h1>
+
+  <div class="wait" data-status-wait {% if not status.wait_text %}hidden{% endif %}>
+    <p class="wait-caption">お待ち時間の目安</p>
+    <p class="wait-value" data-status-wait-text>{{ status.wait_text|default_if_none:"" }}</p>
+    <p class="wait-label" data-status-count>{% if status.waiting_count %}お待ちの方 {{ status.waiting_count }} 名{% endif %}</p>
+  </div>
+
+  <div class="notice" data-status-notice {% if not status.message %}hidden{% endif %}>
+    <p data-status-message>{{ status.message|default_if_none:"" }}</p>
+  </div>
+
+  <p class="footnote">問診票を提出された方は、お手元のリンクからご自身の待ち時間を確認できます。</p>
+</div>
+{% endblock %}
+
+{% block scripts %}{% include "status_view/_poll.html" %}{% endblock %}

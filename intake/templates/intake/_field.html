@@ -1,0 +1,11 @@
+{% comment %}
+group=True: 選択肢の集まり（ラジオ）。単一の入力欄を指さないので label にしない。
+force_required=True: 表示条件を満たしたときだけ必須になる項目。
+{% endcomment %}
+{% if group %}
+  <span class="field-label">{{ field.label }}{% if field.field.required or force_required %}<span class="badge required">必須</span>{% else %}<span class="badge optional">任意</span>{% endif %}</span>
+{% else %}
+  <label class="field-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required or force_required %}<span class="badge required">必須</span>{% else %}<span class="badge optional">任意</span>{% endif %}</label>
+{% endif %}
+{{ field }}
+{% for error in field.errors %}<p class="error">{{ error }}</p>{% endfor %}

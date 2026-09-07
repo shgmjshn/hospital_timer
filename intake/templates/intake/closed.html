@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}受付時間外{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>ただ今受付を行っていません</h1>
+  <div class="notice"><p>{{ message }}</p></div>
+  <p class="footnote">お急ぎの場合は、クリニックへお電話でお問い合わせください。</p>
+</div>
+{% endblock %}

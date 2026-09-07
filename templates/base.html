@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}待ち時間確認{% endblock %} | {{ clinic_name }}</title>
+<style>
+:root{
+  --body-font-size: {{ body_font_size_px }}px;
+  --wait-font-size: {{ wait_font_size_px }}px;
+  --ink:#17201f;
+  --muted:#5a6a68;
+  --line:#d5dedc;
+  --bg:#f4f7f6;
+  --card:#fff;
+  --accent:#0d6d5e;
+  --accent-dark:#0a5a4d;
+  --accent-soft:#e6f2ef;
+  --accent-line:#bcdcd4;
+  --alert:#a6402f;
+  --alert-soft:#fdeee9;
+  --alert-line:#f0c4b7;
+  --radius:14px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-size:var(--body-font-size);line-height:1.7;
+  font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+}
+.masthead{padding:20px 20px 0;max-width:44rem;margin:0 auto}
+.masthead p{margin:0;color:var(--muted);font-size:.95em;letter-spacing:.04em}
+.shell{max-width:44rem;margin:0 auto;padding:16px 20px 64px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:28px 24px}
+h1{font-size:1.5em;margin:0 0 8px;letter-spacing:.01em}
+.lede{margin:0 0 24px;color:var(--muted)}
+.footnote{margin:24px 0 0;color:var(--muted);font-size:.95em}
+.wait{text-align:center;padding:16px 0 4px}
+.wait-caption{margin:0;color:var(--muted);font-size:.95em;letter-spacing:.06em}
+.wait-value{margin:0;font-size:var(--wait-font-size);font-weight:700;line-height:1.1;
+  color:var(--accent);font-variant-numeric:tabular-nums}
+.wait-label{margin:8px 0 0;color:var(--muted)}
+.notice{background:var(--accent-soft);border:1px solid var(--accent-line);
+  border-radius:var(--radius);padding:20px;font-size:1.15em}
+.notice p{margin:0}
+.notice.strong{background:var(--alert-soft);border-color:var(--alert-line);font-weight:600}
+.prompt{margin:24px 0 0;padding:20px;border:1px dashed var(--accent-line);border-radius:var(--radius)}
+.prompt-text{margin:0 0 14px;color:var(--muted)}
+.field{margin:0 0 22px}
+.field-label{display:block;font-weight:600;margin:0 0 6px}
+.badge{margin-left:8px;font-size:.72em;font-weight:600;border-radius:999px;padding:3px 9px;
+  vertical-align:.15em;letter-spacing:.02em}
+.badge.required{background:var(--alert);color:#fff}
+.badge.optional{background:#eef1f0;color:var(--muted)}
+.input{width:100%;font-size:1em;font-family:inherit;padding:12px 14px;
+  border:1px solid var(--line);border-radius:10px;background:#fff;color:inherit}
+.input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+textarea.input{resize:vertical}
+.field > div{display:flex;flex-wrap:wrap;gap:10px}
+.field > div label{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);
+  background:#fff;border-radius:999px;padding:10px 16px;cursor:pointer}
+.field > div input{accent-color:var(--accent);width:1.1em;height:1.1em;margin:0}
+.error{margin:6px 0 0;color:var(--alert);font-size:.95em}
+.submit{width:100%;font-size:1.1em;font-weight:600;font-family:inherit;padding:16px;border:0;
+  border-radius:12px;background:var(--accent);color:#fff;cursor:pointer}
+.submit:hover{background:var(--accent-dark)}
+.submit:focus-visible{outline:2px solid var(--accent-dark);outline-offset:2px}
+</style>
+{% block extra_style %}{% endblock %}
+</head>
+<body>
+<header class="masthead"><p>{{ clinic_name }}</p></header>
+<main class="shell">{% block content %}{% endblock %}</main>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% extends "doctor_console/base.html" %}
+
+{% block title %}{{ entry.full_name }} さんの問診票{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+  <a href="{% url 'doctor_console:queue' %}">← 診察待ちの一覧へ</a>
+</div>
+
+<div class="card">
+  <h1>{{ entry.full_name }}</h1>
+  <p class="lede">{{ entry.kana }}</p>
+
+  <dl class="rows">
+    <div><dt>年齢</dt><dd>{{ entry.age_band.label }}</dd></div>
+    <div><dt>性別</dt><dd>{{ entry.gender.label }}</dd></div>
+    <div><dt>来院区分</dt><dd>{% if entry.is_reserved %}予約（{{ entry.reserved_at|date:"n月j日 H:i" }}）{% else %}飛び込み{% endif %}</dd></div>
+    <div><dt>受付時刻</dt><dd>{{ entry.submitted_at|date:"n月j日 H:i" }}</dd></div>
+    <div><dt>状態</dt><dd>{{ entry.get_status_display }}</dd></div>
+  </dl>
+
+  <div class="clinical">
+    <h2>症状</h2>
+    <p>{{ entry.symptom.name }}（想定所要時間 {{ duration_minutes }} 分）</p>
+    <h2>自由記述</h2>
+    <p>{% if entry.free_text %}{{ entry.free_text|linebreaksbr }}{% else %}記入なし{% endif %}</p>
+  </div>
+
+  <div class="actions">
+    {% if entry.status == 'in_exam' %}
+    <form method="post" action="{% url 'doctor_console:finish_exam' entry.pk %}">
+      {% csrf_token %}<button class="action finish" type="submit">診察完了</button>
+    </form>
+    {% elif entry.status == 'waiting' %}
+    <form method="post" action="{% url 'doctor_console:start_exam' entry.pk %}">
+      {% csrf_token %}
+      <button class="action" type="submit" {% if room.is_in_exam %}disabled{% endif %}>診察開始</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

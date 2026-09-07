@@ -1,0 +1,61 @@
+{% comment %}
+Web Push の許可と購読登録。許可されない・対応していない場合は何も出さず、
+確定呼出は画面内表示（data-status-notice）へフォールバックする。
+{% endcomment %}
+<script>
+(function () {
+  const prompt = document.querySelector("[data-push-permission-prompt]");
+  if (!prompt) return;
+
+  const subscribeUrl = prompt.dataset.subscribeUrl;
+  const vapidKey = prompt.dataset.vapidKey;
+  const button = prompt.querySelector("[data-push-permission-button]");
+  const supported =
+    "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  if (!supported || !vapidKey || !subscribeUrl) return;
+
+  function decodeKey(base64) {
+    const padded = (base64 + "=".repeat((4 - (base64.length % 4)) % 4))
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const raw = atob(padded);
+    return Uint8Array.from([...raw].map((character) => character.charCodeAt(0)));
+  }
+
+  async function registerSubscription() {
+    const registration = await navigator.serviceWorker.register("/sw.js");
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: decodeKey(vapidKey),
+    });
+    const token = prompt.querySelector("[name=csrfmiddlewaretoken]");
+    const response = await fetch(subscribeUrl, {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "X-CSRFToken": token ? token.value : ""},
+      body: JSON.stringify(subscription.toJSON()),
+    });
+    if (!response.ok) throw new Error("購読の登録に失敗しました");
+  }
+
+  if (Notification.permission === "denied") return;
+
+  if (Notification.permission === "granted") {
+    registerSubscription().catch(() => {});
+    return;
+  }
+
+  // 許可はブラウザの制約で操作をきっかけにしか求められないため、ボタンで受け取る
+  prompt.hidden = false;
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    try {
+      if ((await Notification.requestPermission()) === "granted") {
+        await registerSubscription();
+      }
+    } catch (error) {
+      // 失敗しても画面内表示で呼び出しは伝わる
+    }
+    prompt.hidden = true;
+  });
+})();
+</script>

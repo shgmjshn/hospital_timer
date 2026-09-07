@@ -1,0 +1,52 @@
+{% extends "doctor_console/base.html" %}
+
+{% block title %}診察待ちの一覧{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+  <span class="room {% if room.is_in_exam %}busy{% else %}free{% endif %}">
+    {% if room.is_in_exam %}診察中{% else %}手が空いています{% endif %}
+  </span>
+  <form method="post" action="{% url 'doctor_console:logout' %}">
+    {% csrf_token %}<button class="linklike" type="submit">ログアウト</button>
+  </form>
+</div>
+
+<div class="card">
+  <h1>診察待ちの一覧</h1>
+  <p class="lede">
+    お待ちの方 {{ entries|length }} 名{% if overall.wait_text %}・全体で{{ overall.wait_text }}{% endif %}{% if not reception_open %}・ただ今受付は停止中です{% endif %}
+  </p>
+
+  {% for message in messages %}
+  <div class="notice strong"><p>{{ message }}</p></div>
+  {% endfor %}
+
+  {% if entries %}
+  <ul class="queue">
+    {% for entry in entries %}
+    <li>
+      <span class="rank">{{ forloop.counter }}</span>
+      <span class="who">
+        <a href="{% url 'doctor_console:entry_detail' entry.pk %}">{{ entry.full_name }}</a>
+        {% if entry.is_reserved %}<span class="tag">予約 {{ entry.reserved_at|time:"H:i" }}</span>{% else %}<span class="tag">飛び込み</span>{% endif %}{% if entry.status == 'in_exam' %}<span class="tag">診察中</span>{% endif %}
+        <span class="meta">{{ entry.kana }}／{{ entry.age_band.label }}／{{ entry.gender.label }}／{{ entry.symptom.name }}</span>
+      </span>
+      {% if entry.status == 'in_exam' %}
+      <form method="post" action="{% url 'doctor_console:finish_exam' entry.pk %}">
+        {% csrf_token %}<button class="action finish" type="submit">診察完了</button>
+      </form>
+      {% else %}
+      <form method="post" action="{% url 'doctor_console:start_exam' entry.pk %}">
+        {% csrf_token %}
+        <button class="action" type="submit" {% if room.is_in_exam %}disabled{% endif %}>診察開始</button>
+      </form>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">お待ちの方はいません。</p>
+  {% endif %}
+</div>
+{% endblock %}

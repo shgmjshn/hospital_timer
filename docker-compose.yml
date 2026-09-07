@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: hospital_timer
+      POSTGRES_USER: hospital_timer
+      POSTGRES_PASSWORD: hospital_timer
+    ports:
+      # 5432 は他プロジェクトのコンテナと衝突しやすいため、ホスト側は 55432 を既定にする
+      - "${POSTGRES_HOST_PORT:-55432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hospital_timer -d hospital_timer"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:

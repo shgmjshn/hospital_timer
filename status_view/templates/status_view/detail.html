@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}待ち時間{% endblock %}
+
+{% block content %}
+<div class="card"
+     data-status
+     data-poll-interval="{{ poll_interval_seconds }}"
+     data-state-url="{% url 'status_view:state' entry.pk %}">
+  <h1>受付状況</h1>
+
+  <div class="wait" data-status-wait {% if not status.wait_text %}hidden{% endif %}>
+    <p class="wait-caption">お待ち時間の目安</p>
+    <p class="wait-value" data-status-wait-text>{{ status.wait_text|default_if_none:"" }}</p>
+    <p class="wait-label" data-status-position>{% if status.position %}現在 {{ status.position }} 番目にお待ちです{% endif %}</p>
+  </div>
+
+  <div class="notice{% if status.phase == 'come_to_room' %} strong{% endif %}"
+       data-status-notice {% if not status.message %}hidden{% endif %}>
+    <p data-status-message>{{ status.message|default_if_none:"" }}</p>
+  </div>
+
+  {% if status.should_poll %}
+  <div class="prompt"
+       data-push-permission-prompt
+       data-subscribe-url="{% url 'notifier:subscribe' entry.pk %}"
+       data-vapid-key="{{ vapid_public_key }}"
+       hidden>
+    <p class="prompt-text">順番が近づいたら、この端末へお知らせできます。画面を閉じていても届きます。</p>
+    <button type="button" class="submit" data-push-permission-button>通知を受け取る</button>
+    {% csrf_token %}
+  </div>
+
+  <p class="footnote">この画面は自動で更新されます。閉じたあとも、同じリンクからいつでも確認できます。</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% include "status_view/_poll.html" %}
+{% include "status_view/_push.html" %}
+{% endblock %}
